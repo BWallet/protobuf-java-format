@@ -41,6 +41,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+
 import com.google.protobuf.ByteString;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -198,7 +201,9 @@ public class JsonFormat extends AbstractCharBasedFormatter {
 
             case BYTES: {
                 generator.print("\"");
-                generator.print(escapeBytes((ByteString) value));
+                String valueString = Hex.encodeHexString(((ByteString)value).toByteArray());
+                generator.print(valueString);
+                // generator.print(escapeBytes((ByteString) value));
                 generator.print("\"");
                 break;
             }
@@ -979,7 +984,14 @@ public class JsonFormat extends AbstractCharBasedFormatter {
                 break;
 
             case BYTES:
-                value = tokenizer.consumeByteString();
+				byte[] valueBytes = new byte[0];
+				try {
+					valueBytes = Hex.decodeHex(new String(tokenizer.consumeByteString().toByteArray()).toCharArray());
+				}
+				catch (DecoderException e) {
+				}
+				value = ByteString.copyFrom(valueBytes);
+                // value = tokenizer.consumeByteString();
                 break;
 
             case ENUM: {
