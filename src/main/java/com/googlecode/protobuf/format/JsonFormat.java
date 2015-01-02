@@ -29,9 +29,13 @@ package com.googlecode.protobuf.format;
 */
 
 
+import static com.googlecode.protobuf.format.util.TextUtils.digitValue;
+import static com.googlecode.protobuf.format.util.TextUtils.isHex;
+import static com.googlecode.protobuf.format.util.TextUtils.isOctal;
+import static com.googlecode.protobuf.format.util.TextUtils.unsignedToString;
+
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.CharBuffer;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Iterator;
@@ -41,21 +45,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-
 import com.google.protobuf.ByteString;
-import com.google.protobuf.ExtensionRegistry;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message;
-import com.google.protobuf.UnknownFieldSet;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
+import com.google.protobuf.ExtensionRegistry;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
+import com.google.protobuf.UnknownFieldSet;
+import com.googlecode.protobuf.format.util.Hex;
 import com.googlecode.protobuf.format.util.TextUtils;
-
-import static com.googlecode.protobuf.format.util.TextUtils.*;
 
 /**
  * Provide ascii text parsing and formatting support for proto2 instances. The implementation
@@ -984,12 +984,7 @@ public class JsonFormat extends AbstractCharBasedFormatter {
                 break;
 
             case BYTES:
-				byte[] valueBytes = new byte[0];
-				try {
-					valueBytes = Hex.decodeHex(new String(tokenizer.consumeByteString().toByteArray()).toCharArray());
-				}
-				catch (DecoderException e) {
-				}
+				byte[] valueBytes = Hex.decodeHex(new String(tokenizer.consumeByteString().toByteArray()).toCharArray());
 				value = ByteString.copyFrom(valueBytes);
                 // value = tokenizer.consumeByteString();
                 break;
